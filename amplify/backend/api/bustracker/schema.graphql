@@ -1,0 +1,34 @@
+type Journey @model {
+  id: ID!
+  from: String!
+  to: String!
+  schedule: [Schedule] @connection(name: "JourneySchedule")
+  stops: [Stop] @connection(name: "JourneyStops")
+}
+type Schedule @model {
+  id: ID!
+  day: String!
+  time: AWSTime!
+  journey: Journey @connection(name: "JourneySchedule")
+}
+type Trip @model {
+  id: ID!
+  date: AWSDateTime!
+  schedule: Schedule
+  passengers: [Passenger] @connection(name: "TripPassengers")
+}
+type Passenger @model {
+  id: ID!
+  trip: Trip @connection(name: "TripPassengers")
+  name: String!
+  seat: String!
+  stop: Stop
+}
+type Stop @model {
+  id: ID!
+  journey: Journey @connection(name: "JourneyStops")
+  name: String!
+  latitude: Int
+  longitude: Int
+  address: String
+}

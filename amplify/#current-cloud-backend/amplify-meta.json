@@ -1,0 +1,74 @@
+{
+	"providers": {
+		"awscloudformation": {
+			"AuthRoleName": "routetracker-20181211084053-authRole",
+			"UnauthRoleArn": "arn:aws:iam::672728142134:role/routetracker-20181211084053-unauthRole",
+			"AuthRoleArn": "arn:aws:iam::672728142134:role/routetracker-20181211084053-authRole",
+			"Region": "us-east-1",
+			"DeploymentBucketName": "routetracker-20181211084053-deployment",
+			"UnauthRoleName": "routetracker-20181211084053-unauthRole",
+			"StackName": "routetracker-20181211084053",
+			"StackId": "arn:aws:cloudformation:us-east-1:672728142134:stack/routetracker-20181211084053/cd181ce0-fce5-11e8-900d-50d5cd16c68e"
+		}
+	},
+	"hosting": {
+		"S3AndCloudFront": {
+			"service": "S3AndCloudFront",
+			"providerPlugin": "awscloudformation",
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/routetracker-20181211084053-deployment/amplify-cfn-templates/hosting/template.json",
+				"logicalId": "hostingS3AndCloudFront"
+			},
+			"lastPushTimeStamp": "2018-12-13T03:16:01.769Z",
+			"output": {
+				"S3BucketSecureURL": "https://routetracker-20181211084302-hostingbucket.s3.amazonaws.com",
+				"WebsiteURL": "http://routetracker-20181211084302-hostingbucket.s3-website-us-east-1.amazonaws.com",
+				"Region": "us-east-1",
+				"HostingBucketName": "routetracker-20181211084302-hostingbucket"
+			},
+			"lastPushDirHash": "fmCWs3Sgn3vBRLLrfDFv48qsY2s="
+		}
+	},
+	"auth": {
+		"cognito6771f3f1": {
+			"service": "Cognito",
+			"providerPlugin": "awscloudformation",
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/routetracker-20181211084053-deployment/amplify-cfn-templates/auth/cognito6771f3f1-cloudformation-template.yml",
+				"logicalId": "authcognito6771f3f1"
+			},
+			"lastPushTimeStamp": "2018-12-13T03:16:01.770Z",
+			"output": {
+				"AppClientSecret": "kfplnf5e3nhgh3gj3udkc02m2iqgg73veigeco10o3h6r4qra0m",
+				"UserPoolId": "us-east-1_JSPJJUX9v",
+				"AppClientIDWeb": "15bln0n6tj8etn8q527fdn7gpo",
+				"AppClientID": "sq4r530o8fkbj60moh2d6dihr",
+				"IdentityPoolId": "us-east-1:447a210b-3b02-4fff-994f-ff2e3b81a78d",
+				"IdentityPoolName": "cognito6771f3f1_identitypool_6771f3f1",
+				"UserPoolName": "cognito6771f3f1_userpool_6771f3f1"
+			},
+			"lastPushDirHash": "VOsrwcipYDU62BE1W6xGk63Tdg0="
+		}
+	},
+	"api": {
+		"bustracker": {
+			"service": "AppSync",
+			"providerPlugin": "awscloudformation",
+			"output": {
+				"securityType": "AMAZON_COGNITO_USER_POOLS",
+				"GraphQLAPIIdOutput": "v6n3zve3nzb3fgjf7f4d2zg3xi",
+				"GraphQLAPIEndpointOutput": "https://arppc2xe35c4zhfmpcnakjkbce.appsync-api.us-east-1.amazonaws.com/graphql",
+				"GraphQLAPIKeyOutput": "da2-n3gukcephzhona5mhucf6p5jki",
+				"AuthCognitoUserPoolIdOutput": "us-east-1_JSPJJUX9v",
+				"AuthCognitoUserPoolNativeClientId": "See UserPool: us-east-1_JSPJJUX9v",
+				"AuthCognitoUserPoolJSClientId": "See UserPool: us-east-1_JSPJJUX9v"
+			},
+			"providerMetadata": {
+				"s3TemplateURL": "https://s3.amazonaws.com/routetracker-20181211084053-deployment/amplify-cfn-templates/api/cloudformation-template.json",
+				"logicalId": "apibustracker"
+			},
+			"lastPushTimeStamp": "2018-12-13T03:16:05.400Z",
+			"lastPushDirHash": "bNbqk8318jJtZstp8BLNT4PE8vk="
+		}
+	}
+}

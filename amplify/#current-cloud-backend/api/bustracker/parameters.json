@@ -1,0 +1,13 @@
+{
+    "AppSyncApiName": "bustracker",
+    "AuthCognitoUserPoolId": {
+        "Fn::GetAtt": [
+            "authcognito6771f3f1",
+            "Outputs.UserPoolId"
+        ]
+    },
+    "schemaGraphql": "s3://routetracker-20181211084053-deployment/amplify-appsync-files/schema.graphql.1544670783629",
+    "ResolverBucket": "routetracker-20181211084053-deployment",
+    "ResolverRootKey": "amplify-appsync-files",
+    "DeploymentTimestamp": "1544670783629"
+}

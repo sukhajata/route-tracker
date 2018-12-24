@@ -1,0 +1,306 @@
+type Journey {
+  id: ID!
+  from: String!
+  to: String!
+  schedule(filter: ModelScheduleFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelScheduleConnection
+  stops(filter: ModelStopFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelStopConnection
+}
+
+type Schedule {
+  id: ID!
+  day: String!
+  time: String!
+  journey: Journey
+}
+
+type Trip {
+  id: ID!
+  date: String!
+  schedule: Schedule
+  passengers(filter: ModelPassengerFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelPassengerConnection
+}
+
+type Passenger {
+  id: ID!
+  trip: Trip
+  name: String!
+  seat: String!
+  stop: Stop
+}
+
+type Stop {
+  id: ID!
+  journey: Journey
+  name: String!
+  latitude: Int
+  longitude: Int
+  address: String
+}
+
+enum ModelSortDirection {
+  ASC
+  DESC
+}
+
+type ModelJourneyConnection {
+  items: [Journey]
+  nextToken: String
+}
+
+input ModelStringFilterInput {
+  ne: String
+  eq: String
+  le: String
+  lt: String
+  ge: String
+  gt: String
+  contains: String
+  notContains: String
+  between: [String]
+  beginsWith: String
+}
+
+input ModelIDFilterInput {
+  ne: ID
+  eq: ID
+  le: ID
+  lt: ID
+  ge: ID
+  gt: ID
+  contains: ID
+  notContains: ID
+  between: [ID]
+  beginsWith: ID
+}
+
+input ModelIntFilterInput {
+  ne: Int
+  eq: Int
+  le: Int
+  lt: Int
+  ge: Int
+  gt: Int
+  contains: Int
+  notContains: Int
+  between: [Int]
+}
+
+input ModelFloatFilterInput {
+  ne: Float
+  eq: Float
+  le: Float
+  lt: Float
+  ge: Float
+  gt: Float
+  contains: Float
+  notContains: Float
+  between: [Float]
+}
+
+input ModelBooleanFilterInput {
+  ne: Boolean
+  eq: Boolean
+}
+
+input ModelJourneyFilterInput {
+  id: ModelIDFilterInput
+  from: ModelStringFilterInput
+  to: ModelStringFilterInput
+  and: [ModelJourneyFilterInput]
+  or: [ModelJourneyFilterInput]
+  not: ModelJourneyFilterInput
+}
+
+type Query {
+  getJourney(id: ID!): Journey
+  listJourneys(filter: ModelJourneyFilterInput, limit: Int, nextToken: String): ModelJourneyConnection
+  getSchedule(id: ID!): Schedule
+  listSchedules(filter: ModelScheduleFilterInput, limit: Int, nextToken: String): ModelScheduleConnection
+  getTrip(id: ID!): Trip
+  listTrips(filter: ModelTripFilterInput, limit: Int, nextToken: String): ModelTripConnection
+  getPassenger(id: ID!): Passenger
+  listPassengers(filter: ModelPassengerFilterInput, limit: Int, nextToken: String): ModelPassengerConnection
+  getStop(id: ID!): Stop
+  listStops(filter: ModelStopFilterInput, limit: Int, nextToken: String): ModelStopConnection
+}
+
+input CreateJourneyInput {
+  id: ID
+  from: String!
+  to: String!
+}
+
+input UpdateJourneyInput {
+  id: ID!
+  from: String
+  to: String
+}
+
+input DeleteJourneyInput {
+  id: ID
+}
+
+type Mutation {
+  createJourney(input: CreateJourneyInput!): Journey
+  updateJourney(input: UpdateJourneyInput!): Journey
+  deleteJourney(input: DeleteJourneyInput!): Journey
+  createSchedule(input: CreateScheduleInput!): Schedule
+  updateSchedule(input: UpdateScheduleInput!): Schedule
+  deleteSchedule(input: DeleteScheduleInput!): Schedule
+  createTrip(input: CreateTripInput!): Trip
+  updateTrip(input: UpdateTripInput!): Trip
+  deleteTrip(input: DeleteTripInput!): Trip
+  createPassenger(input: CreatePassengerInput!): Passenger
+  updatePassenger(input: UpdatePassengerInput!): Passenger
+  deletePassenger(input: DeletePassengerInput!): Passenger
+  createStop(input: CreateStopInput!): Stop
+  updateStop(input: UpdateStopInput!): Stop
+  deleteStop(input: DeleteStopInput!): Stop
+}
+
+type Subscription {
+  onCreateJourney: Journey @aws_subscribe(mutations: ["createJourney"])
+  onUpdateJourney: Journey @aws_subscribe(mutations: ["updateJourney"])
+  onDeleteJourney: Journey @aws_subscribe(mutations: ["deleteJourney"])
+  onCreateSchedule: Schedule @aws_subscribe(mutations: ["createSchedule"])
+  onUpdateSchedule: Schedule @aws_subscribe(mutations: ["updateSchedule"])
+  onDeleteSchedule: Schedule @aws_subscribe(mutations: ["deleteSchedule"])
+  onCreateTrip: Trip @aws_subscribe(mutations: ["createTrip"])
+  onUpdateTrip: Trip @aws_subscribe(mutations: ["updateTrip"])
+  onDeleteTrip: Trip @aws_subscribe(mutations: ["deleteTrip"])
+  onCreatePassenger: Passenger @aws_subscribe(mutations: ["createPassenger"])
+  onUpdatePassenger: Passenger @aws_subscribe(mutations: ["updatePassenger"])
+  onDeletePassenger: Passenger @aws_subscribe(mutations: ["deletePassenger"])
+  onCreateStop: Stop @aws_subscribe(mutations: ["createStop"])
+  onUpdateStop: Stop @aws_subscribe(mutations: ["updateStop"])
+  onDeleteStop: Stop @aws_subscribe(mutations: ["deleteStop"])
+}
+
+type ModelScheduleConnection {
+  items: [Schedule]
+  nextToken: String
+}
+
+input ModelScheduleFilterInput {
+  id: ModelIDFilterInput
+  day: ModelStringFilterInput
+  time: ModelStringFilterInput
+  and: [ModelScheduleFilterInput]
+  or: [ModelScheduleFilterInput]
+  not: ModelScheduleFilterInput
+}
+
+input CreateScheduleInput {
+  id: ID
+  day: String!
+  time: String!
+  scheduleJourneyId: ID
+}
+
+input UpdateScheduleInput {
+  id: ID!
+  day: String
+  time: String
+  scheduleJourneyId: ID
+}
+
+input DeleteScheduleInput {
+  id: ID
+}
+
+type ModelTripConnection {
+  items: [Trip]
+  nextToken: String
+}
+
+input ModelTripFilterInput {
+  id: ModelIDFilterInput
+  date: ModelStringFilterInput
+  and: [ModelTripFilterInput]
+  or: [ModelTripFilterInput]
+  not: ModelTripFilterInput
+}
+
+input CreateTripInput {
+  id: ID
+  date: String!
+}
+
+input UpdateTripInput {
+  id: ID!
+  date: String
+}
+
+input DeleteTripInput {
+  id: ID
+}
+
+type ModelPassengerConnection {
+  items: [Passenger]
+  nextToken: String
+}
+
+input ModelPassengerFilterInput {
+  id: ModelIDFilterInput
+  name: ModelStringFilterInput
+  seat: ModelStringFilterInput
+  and: [ModelPassengerFilterInput]
+  or: [ModelPassengerFilterInput]
+  not: ModelPassengerFilterInput
+}
+
+input CreatePassengerInput {
+  id: ID
+  name: String!
+  seat: String!
+  passengerTripId: ID
+}
+
+input UpdatePassengerInput {
+  id: ID!
+  name: String
+  seat: String
+  passengerTripId: ID
+}
+
+input DeletePassengerInput {
+  id: ID
+}
+
+type ModelStopConnection {
+  items: [Stop]
+  nextToken: String
+}
+
+input ModelStopFilterInput {
+  id: ModelIDFilterInput
+  name: ModelStringFilterInput
+  latitude: ModelIntFilterInput
+  longitude: ModelIntFilterInput
+  address: ModelStringFilterInput
+  and: [ModelStopFilterInput]
+  or: [ModelStopFilterInput]
+  not: ModelStopFilterInput
+}
+
+input CreateStopInput {
+  id: ID
+  name: String!
+  latitude: Int
+  longitude: Int
+  address: String
+  stopJourneyId: ID
+}
+
+input UpdateStopInput {
+  id: ID!
+  name: String
+  latitude: Int
+  longitude: Int
+  address: String
+  stopJourneyId: ID
+}
+
+input DeleteStopInput {
+  id: ID
+}
