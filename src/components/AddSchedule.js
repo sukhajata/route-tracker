@@ -1,12 +1,10 @@
 import React, { Component } from 'react';
 
 import { withStyles } from '@material-ui/core/styles';
-import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-import Input from '@material-ui/core/Input';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormControl from '@material-ui/core/FormControl';
 import TimePicker from 'react-times';
@@ -58,24 +56,11 @@ class AddSchedule extends Component {
     
   }
 
-  handleClick = () => async event => {
-    this.setState({ loading: true });
-
-    const newSchedule = {
-      day: this.state.day,
-      time: this.state.time + 'Z',
-      scheduleJourneyId: this.props.match.params.id
-    };
-    await this.props.addSchedule(newSchedule);
-    this.setState({
-        day: '',
-        time: '',
-    });
-    this.props.history.push('/listschedule/' + this.props.match.params.id);
-  };
+ 
 
   render() {
-    const { classes, loading } = this.props;
+    const { classes, loading, handleAddSchedule } = this.props;
+    const { day, time } = this.state;
     const days = ['Every day', 'Mon-Fri', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     if (loading) return (<h2>Loading...</h2>);
 
@@ -91,7 +76,7 @@ class AddSchedule extends Component {
                         <Select
                             id="day"
                             label="Day"
-                            value={this.state.day}
+                            value={day}
                             inputProps={{
                                 name: 'day',
                                 id: 'day-simple',
@@ -106,7 +91,7 @@ class AddSchedule extends Component {
                 <Grid key="from" item>
                     <div className={classes.inputField}>
                         <TimePicker
-                            time={this.state.time}
+                            time={time}
                             onFocusChange={this.onFocusChange}
                             onTimeChange={this.onTimeChange}
                         />
@@ -117,7 +102,7 @@ class AddSchedule extends Component {
                     variant="contained"
                     color="primary"
                     className="classes.button"
-                    onClick={this.handleClick()}>
+                    onClick={() => handleAddSchedule(day, time)}>
                     Submit
                     </Button>
                 </Grid>

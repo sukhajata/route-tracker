@@ -38,19 +38,8 @@ class ListSchedule extends Component {
         multiline: 'Controlled'
     };
 
-    async componentDidMount() {
-        console.log(this.props);
-        await this.props.getJourney(this.props.match.params.id);
-    }
-
-   
-    handleClickHome = event => {
-        this.props.history.push('/');
-    };
-
-
     render() {
-        const { classes, journey, loading } = this.props;
+        const { classes, journey, loading, handleClickAddSchedule } = this.props;
 
         const TableContent = journey.schedule && journey.schedule.items.map((item) => 
             <TableRow key={item.id} >
@@ -59,27 +48,17 @@ class ListSchedule extends Component {
             </TableRow>
         );
 
-        const HomeIcon = props => {
-            return (
-                <SvgIcon {...props}>
-                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
-                </SvgIcon>
-            );
-        }
-
         if (loading) return (<h2>Loading...</h2>);
 
         return (
             <div>
-                <div><HomeIcon className={classes.icon} color="primary" onClick={this.handleClickHome}/>
-                    <Link to={'/trips/' + this.props.match.params.id}>passengers</Link></div>
                 <Table className={classes.demo}>
                     <TableHead>
                         <TableRow>
                             <TableCell className={classes.tableHeader}>
-                                { journey.from && journey.from + ' to ' + journey.to}
+                                &nbsp;
                             </TableCell>
-                            <TableCell><Link to={'/addschedule/' + this.props.match.params.id}><Button variant="contained" color="primary">+</Button></Link></TableCell>
+                            <TableCell><Button variant="contained" color="primary" onClick={handleClickAddSchedule}>+</Button></TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>

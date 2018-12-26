@@ -46,7 +46,7 @@ class ListJourneys extends Component {
 
         const TableContent = journeys.map((journey) => 
             <TableRow key={journey.id} >
-                <TableCell><Link to={'/listschedule/' + journey.id}><Button>{journey.from + " to " + journey.to}</Button></Link></TableCell>
+                <TableCell><Link to={'/trips/' + journey.id}><Button>{journey.from + " to " + journey.to}</Button></Link></TableCell>
                 <TableCell><Button onClick={this.handleDelete(journey.id)}>delete</Button></TableCell>
             </TableRow>
         );

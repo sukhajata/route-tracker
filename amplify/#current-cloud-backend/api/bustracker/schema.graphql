@@ -8,13 +8,13 @@ type Journey @model {
 type Schedule @model {
   id: ID!
   day: String!
-  time: String!
+  time: AWSTime!
   journey: Journey @connection(name: "JourneySchedule")
 }
 type Trip @model {
   id: ID!
-  date: String!
-  schedule: Schedule
+  date: AWSDate!
+  scheduleId: ID!
   passengers: [Passenger] @connection(name: "TripPassengers")
 }
 type Passenger @model {
@@ -22,13 +22,13 @@ type Passenger @model {
   trip: Trip @connection(name: "TripPassengers")
   name: String!
   seat: String!
-  stop: Stop
+  stopId: ID
 }
 type Stop @model {
   id: ID!
   journey: Journey @connection(name: "JourneyStops")
   name: String!
-  latitude: Int
-  longitude: Int
+  latitude: Float
+  longitude: Float
   address: String
 }

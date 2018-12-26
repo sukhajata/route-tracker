@@ -9,14 +9,14 @@ type Journey {
 type Schedule {
   id: ID!
   day: String!
-  time: String!
+  time: AWSTime!
   journey: Journey
 }
 
 type Trip {
   id: ID!
-  date: String!
-  schedule: Schedule
+  date: AWSDate!
+  scheduleId: ID!
   passengers(filter: ModelPassengerFilterInput, sortDirection: ModelSortDirection, limit: Int, nextToken: String): ModelPassengerConnection
 }
 
@@ -25,15 +25,15 @@ type Passenger {
   trip: Trip
   name: String!
   seat: String!
-  stop: Stop
+  stopId: ID
 }
 
 type Stop {
   id: ID!
   journey: Journey
   name: String!
-  latitude: Int
-  longitude: Int
+  latitude: Float
+  longitude: Float
   address: String
 }
 
@@ -193,14 +193,14 @@ input ModelScheduleFilterInput {
 input CreateScheduleInput {
   id: ID
   day: String!
-  time: String!
+  time: AWSTime!
   scheduleJourneyId: ID
 }
 
 input UpdateScheduleInput {
   id: ID!
   day: String
-  time: String
+  time: AWSTime
   scheduleJourneyId: ID
 }
 
@@ -216,6 +216,7 @@ type ModelTripConnection {
 input ModelTripFilterInput {
   id: ModelIDFilterInput
   date: ModelStringFilterInput
+  scheduleId: ModelIDFilterInput
   and: [ModelTripFilterInput]
   or: [ModelTripFilterInput]
   not: ModelTripFilterInput
@@ -223,12 +224,14 @@ input ModelTripFilterInput {
 
 input CreateTripInput {
   id: ID
-  date: String!
+  date: AWSDate!
+  scheduleId: ID!
 }
 
 input UpdateTripInput {
   id: ID!
-  date: String
+  date: AWSDate
+  scheduleId: ID
 }
 
 input DeleteTripInput {
@@ -244,6 +247,7 @@ input ModelPassengerFilterInput {
   id: ModelIDFilterInput
   name: ModelStringFilterInput
   seat: ModelStringFilterInput
+  stopId: ModelIDFilterInput
   and: [ModelPassengerFilterInput]
   or: [ModelPassengerFilterInput]
   not: ModelPassengerFilterInput
@@ -253,6 +257,7 @@ input CreatePassengerInput {
   id: ID
   name: String!
   seat: String!
+  stopId: ID
   passengerTripId: ID
 }
 
@@ -260,6 +265,7 @@ input UpdatePassengerInput {
   id: ID!
   name: String
   seat: String
+  stopId: ID
   passengerTripId: ID
 }
 
@@ -275,8 +281,8 @@ type ModelStopConnection {
 input ModelStopFilterInput {
   id: ModelIDFilterInput
   name: ModelStringFilterInput
-  latitude: ModelIntFilterInput
-  longitude: ModelIntFilterInput
+  latitude: ModelFloatFilterInput
+  longitude: ModelFloatFilterInput
   address: ModelStringFilterInput
   and: [ModelStopFilterInput]
   or: [ModelStopFilterInput]
@@ -286,8 +292,8 @@ input ModelStopFilterInput {
 input CreateStopInput {
   id: ID
   name: String!
-  latitude: Int
-  longitude: Int
+  latitude: Float
+  longitude: Float
   address: String
   stopJourneyId: ID
 }
@@ -295,8 +301,8 @@ input CreateStopInput {
 input UpdateStopInput {
   id: ID!
   name: String
-  latitude: Int
-  longitude: Int
+  latitude: Float
+  longitude: Float
   address: String
   stopJourneyId: ID
 }

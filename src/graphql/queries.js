@@ -97,16 +97,13 @@ export const getTrip = `query GetTrip($id: ID!) {
   getTrip(id: $id) {
     id
     date
-    schedule {
-      id
-      day
-      time
-    }
+    scheduleId
     passengers {
       items {
         id
         name
         seat
+        stopId
       }
       nextToken
     }
@@ -122,16 +119,13 @@ export const listTrips = `query ListTrips(
     items {
       id
       date
-      schedule {
-        id
-        day
-        time
-      }
+      scheduleId
       passengers {
         items {
           id
           name
           seat
+          stopId
         }
         nextToken
       }
@@ -146,16 +140,11 @@ export const getPassenger = `query GetPassenger($id: ID!) {
     trip {
       id
       date
+      scheduleId
     }
     name
     seat
-    stop {
-      id
-      name
-      latitude
-      longitude
-      address
-    }
+    stopId
   }
 }
 `;
@@ -170,16 +159,11 @@ export const listPassengers = `query ListPassengers(
       trip {
         id
         date
+        scheduleId
       }
       name
       seat
-      stop {
-        id
-        name
-        latitude
-        longitude
-        address
-      }
+      stopId
     }
     nextToken
   }

@@ -147,10 +147,10 @@
 							"Outputs.UserPoolId"
 						]
 					},
-					"schemaGraphql": "s3://routetracker-20181211084053-deployment/amplify-appsync-files/schema.graphql.1544670783629",
+					"schemaGraphql": "s3://routetracker-20181211084053-deployment/amplify-appsync-files/schema.graphql.1545817146938",
 					"ResolverBucket": "routetracker-20181211084053-deployment",
 					"ResolverRootKey": "amplify-appsync-files",
-					"DeploymentTimestamp": "1544670783629"
+					"DeploymentTimestamp": "1545817146938"
 				}
 			}
 		}

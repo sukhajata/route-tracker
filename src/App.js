@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Route, Switch } from 'react-router-dom';
-import logo from './logo.svg';
 import './App.css';
 
 import { withStyles } from '@material-ui/core/styles';
@@ -12,15 +11,12 @@ import Amplify, { API, graphqlOperation } from 'aws-amplify';
 import aws_exports from './aws-exports';
 import { withAuthenticator } from 'aws-amplify-react';
 
+import { format } from 'date-fns'
+
 import * as queries from './graphql/queries';
 import * as mutations from './graphql/mutations';
-import AddJourney from './components/AddJourney';
 import ListJourneys from './components/ListJourneys';
-import ListStops from './components/ListStops';
-import ListPassengers from './components/ListPassengers';
 import * as subscriptions from './graphql/subscriptions';
-import ListSchedule from './components/ListSchedule';
-import AddSchedule from './components/AddSchedule';
 import Trips from './components/Trips';
 
 Amplify.configure(aws_exports);
@@ -28,7 +24,7 @@ Amplify.configure(aws_exports);
 //15bln0n6tj8etn8q527fdn7gpo
 const styles = theme => ({
   root: {
-    margin: theme.spacing.unit,
+    margin: theme.spacing.unit * 2,
   },
 });
 
@@ -40,7 +36,8 @@ class App extends Component {
     currentJourney: {},
     passengers: [],
     schedule: [],
-    trips: [],
+    //trips: [],
+    currentTrip: {},
     error: '',
     loading: false,
   };
@@ -72,11 +69,14 @@ class App extends Component {
     });
   }
 
-  addSchedule = async data => {
+  addSchedule = async (day, time, journeyId) => {
+    const newSchedule = {
+      day: day,
+      time: time + 'Z',
+      scheduleJourneyId: journeyId,
+    };
     this.setState({ loading: true });
-    
-    const result = await API.graphql(graphqlOperation(mutations.createSchedule, { input: data }));
-    console.log(result);
+    await API.graphql(graphqlOperation(mutations.createSchedule, { input: newSchedule }));
   }
 
   deleteJourney = data => {
@@ -86,21 +86,53 @@ class App extends Component {
 
   getTrip = async (scheduleId, date) => {
     this.setState({ loading: true });
+    const formattedDate = format(date, 'yyyy-MM-dd');
     const filter = {
-      date: date,
-      tripScheduleId: scheduleId
+      date: { eq: formattedDate },
+      scheduleId: { eq: scheduleId },
     };
-    const query = await API.graphql(graphqlOperation(queries.listTrips, { filter: filter }));
-    console.log(query);
+    
+    try {
+      const result = await API.graphql(graphqlOperation(queries.listTrips, { filter: filter }));
+      let trip;
+      if (result.data.listTrips.items.length === 0) {
+        const input = {
+          date: formattedDate,
+          scheduleId: scheduleId,
+        }
+        const response = await API.graphql(graphqlOperation(mutations.createTrip, { input: input }));
+        trip = response.data.createTrip;
+      } else {
+        trip = result.data.listTrips.items[0];
+      }
 
-    const data = {
-      date: date,
-      tripScheduleId: scheduleId
-    };
+      this.setState({
+        loading: false,
+        currentTrip: trip,
+      });
 
-    return null;
-    //const result = await API.graphql(graphqlOperation(mutations.createTrip, { input: data }));
+    } catch (response) {
+      console.log(response);
+      const message = "Error getting trip: " + response.errors[0].message
+      this.setState({ 
+        error: message,
+        loading: false,
+        currentTrip: null,
+      });
+    }
+    
   }
+
+  addPassenger = (tripId, name, seat) => {
+    this.setState({ loading: true });
+    const input = {
+      name: name, 
+      seat: seat,
+      passengerTripId: tripId,
+    }
+    API.graphql(graphqlOperation(mutations.createPassenger, { input: input }));
+    
+  };
 
   getPassengers = async tripId => {
     this.setState({ loading: true });
@@ -118,19 +150,37 @@ class App extends Component {
     }
     const journey = this.state.journeys.filter( journey => journey.id === journeyId)[0];
     const schedule = journey.schedule.items.filter( item => item.day === weekday);
+    this.setState({ loading: false });
     return schedule;
   }
+
+  getStops = journeyId => {
+    const journey = this.state.journeys.filter( journey => journey.id === journeyId )[0];
+    const stops = journey.stops.items;
+    return stops;
+  };
+
+
+  addStop = async (name, latitude, longitude, journeyId) => {
+    const input = {
+      name,
+      latitude,
+      longitude,
+      stopJourneyId: journeyId,
+    };
+    API.graphql(graphqlOperation(mutations.createStop, { input: input }));
+  };
 
   async componentDidMount() {
     await this.getJourneys();
 
     API.graphql(graphqlOperation(subscriptions.onCreateJourney)).subscribe({
-          next: (response) => {
-              let journeys = this.state.journeys;
-              journeys.push(response.value.data.onCreateJourney);
-              this.setState ({ journeys, loading: false });
-          }
-      });
+        next: (response) => {
+            let journeys = this.state.journeys;
+            journeys.push(response.value.data.onCreateJourney);
+            this.setState ({ journeys, loading: false });
+        }
+    });
 
     API.graphql(graphqlOperation(subscriptions.onDeleteJourney)).subscribe({
       next: (response) => {
@@ -156,11 +206,40 @@ class App extends Component {
       }
     });
 
+    API.graphql(graphqlOperation(subscriptions.onCreatePassenger)).subscribe({
+      next: response => {
+        const newPassenger = response.value.data.onCreatePassenger;
+        if (this.state.currentTrip && this.state.currentTrip.id === newPassenger.trip.id) {
+          let currentTrip = this.state.currentTrip;
+          currentTrip.passengers.items.push(newPassenger);
+          this.setState({ 
+            loading: false,
+            currentTrip: currentTrip,
+          });
+        } 
+        
+      }
+    });
+
+    API.graphql(graphqlOperation(subscriptions.onCreateStop)).subscribe({
+      next:response => {
+        const newStop = response.value.data.onCreateStop;
+        if (this.state.currentJourney && this.state.currentJourney.id === newStop.journey.id) {
+          let currentJourney = this.state.currentJourney;
+          currentJourney.stops.items.push(newStop);
+          this.setState({
+            loading: false,
+            currentJourney,
+          });
+        }
+      }
+    })
+
   }
 
   render() {
     const { classes } = this.props;
-    const { journeys, currentJourney, passengers, schedule, loading } = this.state;
+    const { journeys, currentJourney, passengers, loading, error } = this.state;
 
     return (
       <MuiPickersUtilsProvider utils={DateFnsUtils}>
@@ -172,32 +251,21 @@ class App extends Component {
               render={props => <ListJourneys {...props} journeys={journeys} loading={loading} getSchedule={this.getSchedule} deleteJourney={this.deleteJourney}/> }  
             />
             <Route
-              path="/addjourney"
-              render={props => <AddJourney {...props} journeys={journeys} loading={loading} addJourney={this.addJourney} />}
-            />
-            <Route
-              path="/liststops/:id"
-              render={props => <ListStops {...props}/>}
-            />
-            <Route
-              path="/listpassengers/:id"
-              render={props => <ListPassengers {...props} passengers={passengers}/>}
-            />
-            <Route
-              path="/listschedule/:id"
-              render={props => <ListSchedule {...props} journey={currentJourney} getJourney={this.getJourney} />}
-            />
-            <Route
-              path="/addschedule/:id"
-              render={props => <AddSchedule {...props} addSchedule={this.addSchedule} />}
-            />
-            <Route
               path="/trips/:id"
-              render={props => <Trips {...props} journey={currentJourney} getJourney={this.getJourney} getSchedule={this.getSchedule} getTrip={this.getTrip}/>}
-            />
-            <Route
-              path="/listpassengers/:id"
-              render={props => <ListPassengers {...props} journey={currentJourney} getJourney={this.getJourney} />}
+              render={props => 
+                <Trips {...props} 
+                  loading={loading}
+                  error={error}
+                  journey={currentJourney} 
+                  getJourney={this.getJourney} 
+                  getSchedule={this.getSchedule} 
+                  addSchedule={this.addSchedule}
+                  getTrip={this.getTrip} 
+                  getStops={this.getStops}
+                  addStop={this.addStop}
+                  trip={this.state.currentTrip} 
+                  addPassenger={this.addPassenger}
+                />}
             />
           </Switch>
         </div>

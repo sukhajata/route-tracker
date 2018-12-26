@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { withScriptjs, withGoogleMap, GoogleMap, Marker } from 'react-google-maps';
+
 import { SearchBox } from 'react-google-maps/lib/components/places/SearchBox';
 import _ from 'lodash';
 
@@ -11,7 +12,6 @@ class MapComponent extends Component {
             bounds: null,
             center: { lat: 13.814, lng: 100.549 },
             zoom: 8,
-            markers: [],
         };
         this.searchBoxRef = React.createRef();
         this.mapRef = React.createRef();
@@ -42,9 +42,13 @@ class MapComponent extends Component {
         });
     }
 
+    handleClickMap = data => {
+        this.props.handleClickAddStop(data.latLng.lat(), data.latLng.lng());
+    };
+
     render() {
-        const { isMarkerShown } = this.props;
         const { bounds, center, zoom } = this.state;
+        const { stops } = this.props;
 
         return (
             <div>
@@ -78,8 +82,14 @@ class MapComponent extends Component {
                     defaultCenter={center}
                     center={center}
                     zoom={zoom}
+                    onClick={this.handleClickMap}
                 >
-                    {isMarkerShown && <Marker position={{ lat: 13.814, lng: 100.549 }} />}
+                    {stops.map( stop => 
+                        <Marker 
+                            key={stop.id} 
+                            position={{ lat: stop.latitude, lng: stop.longitude }} 
+                        />
+                    )}
                 </GoogleMap>
             </div>
         )

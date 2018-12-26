@@ -122,16 +122,13 @@ export const onCreateTrip = `subscription OnCreateTrip {
   onCreateTrip {
     id
     date
-    schedule {
-      id
-      day
-      time
-    }
+    scheduleId
     passengers {
       items {
         id
         name
         seat
+        stopId
       }
       nextToken
     }
@@ -142,16 +139,13 @@ export const onUpdateTrip = `subscription OnUpdateTrip {
   onUpdateTrip {
     id
     date
-    schedule {
-      id
-      day
-      time
-    }
+    scheduleId
     passengers {
       items {
         id
         name
         seat
+        stopId
       }
       nextToken
     }
@@ -162,16 +156,13 @@ export const onDeleteTrip = `subscription OnDeleteTrip {
   onDeleteTrip {
     id
     date
-    schedule {
-      id
-      day
-      time
-    }
+    scheduleId
     passengers {
       items {
         id
         name
         seat
+        stopId
       }
       nextToken
     }
@@ -184,16 +175,11 @@ export const onCreatePassenger = `subscription OnCreatePassenger {
     trip {
       id
       date
+      scheduleId
     }
     name
     seat
-    stop {
-      id
-      name
-      latitude
-      longitude
-      address
-    }
+    stopId
   }
 }
 `;
@@ -203,16 +189,11 @@ export const onUpdatePassenger = `subscription OnUpdatePassenger {
     trip {
       id
       date
+      scheduleId
     }
     name
     seat
-    stop {
-      id
-      name
-      latitude
-      longitude
-      address
-    }
+    stopId
   }
 }
 `;
@@ -222,16 +203,11 @@ export const onDeletePassenger = `subscription OnDeletePassenger {
     trip {
       id
       date
+      scheduleId
     }
     name
     seat
-    stop {
-      id
-      name
-      latitude
-      longitude
-      address
-    }
+    stopId
   }
 }
 `;

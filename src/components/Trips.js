@@ -1,46 +1,68 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 
 import { Link } from 'react-router-dom';
 
 import { DatePicker } from 'material-ui-pickers';
-import { format } from 'date-fns'
-
+import { format } from 'date-fns';
 
 import { withStyles } from '@material-ui/core/styles';
-import Table from '@material-ui/core/Table';
-import TableBody from '@material-ui/core/TableBody';
-import TableCell from '@material-ui/core/TableCell';
-import TableHead from '@material-ui/core/TableHead';
-import TableRow from '@material-ui/core/TableRow';
-import Button from '@material-ui/core/Button';
+
 import SvgIcon from '@material-ui/core/SvgIcon';
-import InputLabel from '@material-ui/core/InputLabel';
-import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
+import Typography from '@material-ui/core/Typography';
+import AppBar from '@material-ui/core/AppBar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+
+import Passengers from './Passengers';
+import AddSchedule from './AddSchedule';
+import ListSchedule from './ListSchedule';
+import ListStops from './ListStops';
+
+function TabContainer(props) {
+    return (
+      <Typography component="div" style={{ padding: 8 * 3 }}>
+        {props.children}
+      </Typography>
+    );
+  }
+  
+TabContainer.propTypes = {
+    children: PropTypes.node.isRequired,
+};
 
 const styles = theme => ({
     root: {
         flexGrow: 1,
         width: '100%'
-      },
-      demo: {
+    },
+    container: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        margin: theme.spacing.unit,
+    },
+    demo: {
         backgroundColor: theme.palette.background.paper,
-      },
-      title: {
+    },
+    title: {
         margin: `${theme.spacing.unit * 4}px 0 ${theme.spacing.unit * 2}px`,
-      },
-      listItem: {
-          backgroundColor: theme.palette.primary.light,
-          margin: 8,
-      },
-      tableHeader: {
-          fontSize: '1em',
-      },
-      inputField: {
+    },
+    listItem: {
+        backgroundColor: theme.palette.primary.light,
+        margin: 8,
+    },
+    tableHeader: {
+        fontSize: '1em',
+    },
+    inputField: {
         marginBottom: 20,
         width: 200,
-      },
+    },
+    button: {
+        margin: theme.spacing.unit,
+    },
 });
 
 
@@ -49,9 +71,12 @@ class Trips extends Component {
         multiline: 'Controlled',
         date: new Date(),
         time: '',
-        trip: {},
+        name: '',
+        seat: '',
         schedule: [],
-        passengers: [],
+        tabValue: 'one',
+        showDateTime: true,
+        scheduleContent: 'list',
         showPassengers: false,
     };
 
@@ -60,9 +85,8 @@ class Trips extends Component {
         this.selectDate(this.state.date);
     }
 
-   
-    handleClickHome = event => {
-        this.props.history.push('/');
+    handleTabChange = (event, value) => {
+        this.setState({ tabValue: value });
     };
 
     selectDate = async date => {
@@ -74,20 +98,53 @@ class Trips extends Component {
 
     selectTime = async event => {
         const time = event.target.value;
-        var schedule = this.state.schedule.filter(item =>  item.time === time)[0];
-        const trip = await this.props.getTrip(schedule.id, this.state.date);
+        const schedule = this.state.schedule.filter(item =>  item.time === time)[0];
+        await this.props.getTrip(schedule.id, this.state.date);
+
         this.setState({ 
-            trip: trip,
             time: event.target.value, 
-            showPassengers: true 
+            showPassengers: true,
+            showDateTime: false,
         });
     };
 
+    handleClickHidePassengers = () => {
+        this.setState({ 
+            showDateTime: true,
+            showPassengers: false,
+        });
+    };
+
+    handleClickAddSchedule = () => {
+        this.setState({
+            scheduleContent: 'add',
+        })
+    };
+
+    handleSubmitPassenger = (name, seat) => {
+        this.props.addPassenger(this.props.trip.id, name, seat);
+        
+        this.setState({
+            showPassengers: true
+        });
+        //this.props.history.push('/');
+    };
+
+    handleAddSchedule = (day, time) => {
+        this.props.addSchedule(day, time, this.props.match.params.id);
+        this.setState({
+            scheduleContent: 'list',
+        });
+        //this.props.history.push('/listschedule/' + this.props.match.params.id);
+    };
+
     render() {
-        const { classes, journey, loading  } = this.props;
-        const { schedule, date, time, passengers, showPassengers } = this.state;
+        const { classes, journey, loading, trip, error, getStops, addStop  } = this.props;
+        const { tabValue, schedule, date, time, showPassengers, showDateTime, scheduleContent } = this.state;
 
         if (loading) return (<h2>Loading...</h2>);
+
+        if (error) return (<h5>{error}</h5>)
 
         const HomeIcon = props => {
             return (
@@ -97,52 +154,83 @@ class Trips extends Component {
             );
         }
 
-        const Passengers = passengers.map((passenger) => 
-            <TableRow key={passenger.id} >
-                <TableCell><input value={passenger.name}/></TableCell>
-                <TableCell><input value={passenger.destination}/></TableCell>
-            </TableRow>
-        );
-
         return (
-            <div>
+            <div className={classes.root}>
                 <div>
-                    <HomeIcon className={classes.icon} color="primary" onClick={this.handleClickHome}/>
+                    <Link to="/"><HomeIcon className={classes.icon} color="primary" /></Link>
                 </div>
                 <h3>{ journey.from && journey.from + ' to ' + journey.to}</h3>
-                <DatePicker
-                    className={classes.inputField}
-                    onChange={this.selectDate}
-                    value={date}
-                />
-                <br/>
-                <Select
-                    id="time"
-                    label="time"
-                    value={time}
-                    inputProps={{
-                        name: 'time',
-                        id: 'time-simple',
-                    }}
-                    onChange={this.selectTime}
-                    className={classes.inputField}
-                >
-                    {schedule.map( item => <MenuItem key={item.id} value={item.time}>{item.time}</MenuItem>)}
-                </Select>
-                {showPassengers &&  
-                    <Table className={classes.demo}>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell className={classes.tableHeader}>Passengers</TableCell>
-                                <TableCell><Button variant="contained" color="primary">+</Button></TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {Passengers}
-                        </TableBody>
-                    </Table>
+                <AppBar position="static">
+                    <Tabs value={tabValue} onChange={this.handleTabChange}>
+                        <Tab value="one" label="Trips" />
+                        <Tab value="two" label="Schedule" />
+                        <Tab value="three" label="Stops" />
+                    </Tabs>
+                </AppBar>
+                {tabValue === 'one' && 
+                    <TabContainer>
+                        {showDateTime && 
+                            <div>
+                                <DatePicker
+                                    className={classes.inputField}
+                                    onChange={this.selectDate}
+                                    value={date}
+                                />
+                                <br/>
+                                <Select
+                                    id="time"
+                                    label="time"
+                                    value={time}
+                                    onChange={this.selectTime}
+                                    className={classes.inputField}
+                                >
+                                    {schedule.map( item => <MenuItem key={item.id} value={item.time}>{item.time}</MenuItem>)}
+                                </Select>
+                            </div>
+                        }
+                        {showPassengers &&  
+                            <Passengers 
+                                date={date} 
+                                time={time} 
+                                trip={trip} 
+                                handleSubmitPassenger={this.handleSubmitPassenger}  
+                                handleClickHidePassengers={this.handleClickHidePassengers}
+                            />
+                        }
+                    </TabContainer>
+                }
+                
+                {tabValue === 'two' && 
+                    <TabContainer>
+                        {scheduleContent === 'list' && 
+                            <ListSchedule 
+                                loading={loading} 
+                                error={error}
+                                journey={journey} 
+                                handleClickAddSchedule={this.handleClickAddSchedule}
+                            />
+                        }
+                        {scheduleContent === 'add' && 
+                            <AddSchedule 
+                                loading={loading} 
+                                error={error}
+                                handleAddSchedule={this.handleAddSchedule}
+                            />
+                        }
+                    </TabContainer>
                 }
                
+                {tabValue === 'three' &&
+                    <TabContainer>
+                        <ListStops 
+                            loading={loading}
+                            error={error}
+                            journey={journey}
+                            getStops={getStops}
+                            addStop={addStop}
+                        />
+                    </TabContainer>
+                }
             </div>
         );
     }

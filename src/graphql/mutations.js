@@ -122,16 +122,13 @@ export const createTrip = `mutation CreateTrip($input: CreateTripInput!) {
   createTrip(input: $input) {
     id
     date
-    schedule {
-      id
-      day
-      time
-    }
+    scheduleId
     passengers {
       items {
         id
         name
         seat
+        stopId
       }
       nextToken
     }
@@ -142,16 +139,13 @@ export const updateTrip = `mutation UpdateTrip($input: UpdateTripInput!) {
   updateTrip(input: $input) {
     id
     date
-    schedule {
-      id
-      day
-      time
-    }
+    scheduleId
     passengers {
       items {
         id
         name
         seat
+        stopId
       }
       nextToken
     }
@@ -162,16 +156,13 @@ export const deleteTrip = `mutation DeleteTrip($input: DeleteTripInput!) {
   deleteTrip(input: $input) {
     id
     date
-    schedule {
-      id
-      day
-      time
-    }
+    scheduleId
     passengers {
       items {
         id
         name
         seat
+        stopId
       }
       nextToken
     }
@@ -184,16 +175,11 @@ export const createPassenger = `mutation CreatePassenger($input: CreatePassenger
     trip {
       id
       date
+      scheduleId
     }
     name
     seat
-    stop {
-      id
-      name
-      latitude
-      longitude
-      address
-    }
+    stopId
   }
 }
 `;
@@ -203,16 +189,11 @@ export const updatePassenger = `mutation UpdatePassenger($input: UpdatePassenger
     trip {
       id
       date
+      scheduleId
     }
     name
     seat
-    stop {
-      id
-      name
-      latitude
-      longitude
-      address
-    }
+    stopId
   }
 }
 `;
@@ -222,16 +203,11 @@ export const deletePassenger = `mutation DeletePassenger($input: DeletePassenger
     trip {
       id
       date
+      scheduleId
     }
     name
     seat
-    stop {
-      id
-      name
-      latitude
-      longitude
-      address
-    }
+    stopId
   }
 }
 `;
