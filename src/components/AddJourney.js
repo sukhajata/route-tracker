@@ -44,12 +44,18 @@ class AddJourney extends Component {
   };
 
   handleClick = () => async event => {
-    const newJourney = {
-      from: this.state.from,
-      to: this.state.to
-    };
-    this.props.addJourney(newJourney);
+    this.props.addJourney(this.state.code, this.state.from, this.state.to);
     this.setState({
+        code: '',
+        from: '',
+        to: '',
+    });
+    this.props.history.push('/');
+  };
+
+  handleCancel = event => {
+    this.setState({
+        code: '',
         from: '',
         to: '',
     });
@@ -58,6 +64,7 @@ class AddJourney extends Component {
 
   render() {
     const { classes, loading } = this.props;
+    const { code, from, to } = this.state;
 
     if (loading) return (<h2>Loading...</h2>);
 
@@ -66,45 +73,55 @@ class AddJourney extends Component {
             <h2>Add Route</h2>
             <form className={classes.container} noValidate autoComplete="off">
                 <Grid container spacing={16} direction="column">
-                <Grid key="code" item>
-                    <TextField
-                    id="code"
-                    label="Code"
-                    className={classes.textField}
-                    value={this.state.code}
-                    onChange={this.handleChange('code')}
-                    margin="normal"
-                    />
-                </Grid>
-                <Grid key="from" item>
-                    <TextField
-                    id="from"
-                    label="From"
-                    className={classes.textField}
-                    value={this.state.from}
-                    onChange={this.handleChange('from')}
-                    margin="normal"
-                    />
-                </Grid>
-                <Grid key="to" item>
-                    <TextField
-                    id="to"
-                    label="To"
-                    className={classes.textField}
-                    value={this.state.to}
-                    onChange={this.handleChange('to')}
-                    margin="normal"
-                    />
-                </Grid>
-                <Grid key="submit" item>
-                    <Button
-                    variant="contained"
-                    color="primary"
-                    className="classes.button"
-                    onClick={this.handleClick()}>
-                    Submit
-                    </Button>
-                </Grid>
+                    <Grid key="code" item>
+                        <TextField
+                            id="code"
+                            label="Code"
+                            className={classes.textField}
+                            value={code}
+                            onChange={this.handleChange('code')}
+                            margin="normal"
+                        />
+                    </Grid>
+                    <Grid key="from" item>
+                        <TextField
+                            id="from"
+                            label="From"
+                            className={classes.textField}
+                            value={from}
+                            onChange={this.handleChange('from')}
+                            margin="normal"
+                        />
+                    </Grid>
+                    <Grid key="to" item>
+                        <TextField
+                            id="to"
+                            label="To"
+                            className={classes.textField}
+                            value={to}
+                            onChange={this.handleChange('to')}
+                            margin="normal"
+                        />
+                    </Grid>
+                    <Grid key="submit" item>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            className={classes.button}
+                            onClick={this.handleClick()}
+                        >
+                            Submit
+                        </Button>
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            className={classes.button}
+                            onClick={this.handleCancel}
+                        >
+                            Cancel
+                        </Button>
+                    </Grid>
+                    
                 </Grid>
             </form>
       </div>

@@ -4,6 +4,7 @@
 export const createJourney = `mutation CreateJourney($input: CreateJourneyInput!) {
   createJourney(input: $input) {
     id
+    code
     from
     to
     schedule {
@@ -30,6 +31,7 @@ export const createJourney = `mutation CreateJourney($input: CreateJourneyInput!
 export const updateJourney = `mutation UpdateJourney($input: UpdateJourneyInput!) {
   updateJourney(input: $input) {
     id
+    code
     from
     to
     schedule {
@@ -56,6 +58,7 @@ export const updateJourney = `mutation UpdateJourney($input: UpdateJourneyInput!
 export const deleteJourney = `mutation DeleteJourney($input: DeleteJourneyInput!) {
   deleteJourney(input: $input) {
     id
+    code
     from
     to
     schedule {
@@ -86,6 +89,7 @@ export const createSchedule = `mutation CreateSchedule($input: CreateScheduleInp
     time
     journey {
       id
+      code
       from
       to
     }
@@ -99,6 +103,7 @@ export const updateSchedule = `mutation UpdateSchedule($input: UpdateScheduleInp
     time
     journey {
       id
+      code
       from
       to
     }
@@ -112,6 +117,7 @@ export const deleteSchedule = `mutation DeleteSchedule($input: DeleteScheduleInp
     time
     journey {
       id
+      code
       from
       to
     }
@@ -216,6 +222,7 @@ export const createStop = `mutation CreateStop($input: CreateStopInput!) {
     id
     journey {
       id
+      code
       from
       to
     }
@@ -231,6 +238,7 @@ export const updateStop = `mutation UpdateStop($input: UpdateStopInput!) {
     id
     journey {
       id
+      code
       from
       to
     }
@@ -246,6 +254,7 @@ export const deleteStop = `mutation DeleteStop($input: DeleteStopInput!) {
     id
     journey {
       id
+      code
       from
       to
     }

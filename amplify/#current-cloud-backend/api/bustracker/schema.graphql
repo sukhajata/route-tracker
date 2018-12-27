@@ -1,5 +1,6 @@
 type Journey @model {
   id: ID!
+  code: String
   from: String!
   to: String!
   schedule: [Schedule] @connection(name: "JourneySchedule")

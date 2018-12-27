@@ -15,13 +15,17 @@ import { format } from 'date-fns'
 
 import * as queries from './graphql/queries';
 import * as mutations from './graphql/mutations';
-import ListJourneys from './components/ListJourneys';
 import * as subscriptions from './graphql/subscriptions';
+
+import ListJourneys from './components/ListJourneys';
+import AddJourney from './components/AddJourney';
 import Trips from './components/Trips';
 
 Amplify.configure(aws_exports);
 //Hosting endpoint: http://routetracker-20181211084302-hostingbucket.s3-website-us-east-1.amazonaws.com
 //15bln0n6tj8etn8q527fdn7gpo
+//GraphQL endpoint: https://arppc2xe35c4zhfmpcnakjkbce.appsync-api.us-east-1.amazonaws.com/graphql
+
 const styles = theme => ({
   root: {
     margin: theme.spacing.unit * 2,
@@ -42,8 +46,13 @@ class App extends Component {
     loading: false,
   };
 
-  addJourney = newJourney => {
+  addJourney = (code, from, to) => {
     this.setState({ loading: true });
+    const newJourney = {
+      code,
+      from,
+      to,
+    };
     API.graphql(graphqlOperation(mutations.createJourney, {input: newJourney}));
   }
 
@@ -61,7 +70,7 @@ class App extends Component {
     if (this.state.journeys.length === 0) {
       await this.getJourneys();
     }
-    const journey = this.state.journeys.filter( journey => journey.id === journeyId)[0];
+    const journey = this.state.journeys.find( journey => journey.id === journeyId);
     
     this.setState({ 
       loading: false,
@@ -79,9 +88,12 @@ class App extends Component {
     await API.graphql(graphqlOperation(mutations.createSchedule, { input: newSchedule }));
   }
 
-  deleteJourney = data => {
+  deleteJourney = journeyId => {
     this.setState({ loading: true });
-    API.graphql(graphqlOperation(mutations.deleteJourney, {input: data}));
+    const input = {
+      id: journeyId,
+    };
+    API.graphql(graphqlOperation(mutations.deleteJourney, {input: input}));
   }
 
   getTrip = async (scheduleId, date) => {
@@ -161,7 +173,7 @@ class App extends Component {
   };
 
 
-  addStop = async (name, latitude, longitude, journeyId) => {
+  addStop = (name, latitude, longitude, journeyId) => {
     const input = {
       name,
       latitude,
@@ -169,6 +181,14 @@ class App extends Component {
       stopJourneyId: journeyId,
     };
     API.graphql(graphqlOperation(mutations.createStop, { input: input }));
+  };
+
+  deleteStop = stopId => {
+    this.setState({ loading: true });
+    const input = {
+      id: stopId,
+    };
+    API.graphql(graphqlOperation(mutations.deleteStop, { input: input }));
   };
 
   async componentDidMount() {
@@ -206,6 +226,23 @@ class App extends Component {
       }
     });
 
+    API.graphql(graphqlOperation(subscriptions.onDeleteSchedule)).subscribe({
+      next: response => {
+        const deleted = response.value.data.onDeleteSchedule;
+        const journeys = this.state.journeys.map(journey => {
+          if (journey.id === deleted.journey.id) {
+            const items = journey.schedule.items.filter(item => item.id !== deleted.id);
+            journey.schedule.items = items;
+          }
+          return journey;
+        });
+        this.setState({ 
+          journeys: journeys,
+          loading: false,
+        });
+      }
+    });
+
     API.graphql(graphqlOperation(subscriptions.onCreatePassenger)).subscribe({
       next: response => {
         const newPassenger = response.value.data.onCreatePassenger;
@@ -220,20 +257,63 @@ class App extends Component {
         
       }
     });
-
-    API.graphql(graphqlOperation(subscriptions.onCreateStop)).subscribe({
-      next:response => {
-        const newStop = response.value.data.onCreateStop;
-        if (this.state.currentJourney && this.state.currentJourney.id === newStop.journey.id) {
-          let currentJourney = this.state.currentJourney;
-          currentJourney.stops.items.push(newStop);
-          this.setState({
+    
+    API.graphql(graphqlOperation(subscriptions.onDeletePassenger)).subscribe({
+      next: response => {
+        const deleted = response.value.data.onDeletePassenger;
+        if (this.state.currentTrip && this.state.currentTrip.id === deleted.trip.id) {
+          let currentTrip = this.state.currentTrip;
+          const items = currentTrip.passengers.items.filter(item => item.id !== deleted.id);
+          currentTrip.passengers.items = items;
+          this.setState({ 
             loading: false,
-            currentJourney,
+            currentTrip: currentTrip,
           });
         }
       }
-    })
+    });
+
+    API.graphql(graphqlOperation(subscriptions.onCreateStop)).subscribe({
+      next: response => {
+        const newStop = response.value.data.onCreateStop;
+        const journeys = this.state.journeys.map(journey => {
+          if (journey.id === newStop.journey.id) {
+            journey.stops.items.push(newStop);
+          }
+          return journey;
+        });
+        this.setState({
+          journeys,
+          loading: false,
+        });
+
+        if (this.state.currentJourney && this.state.currentJourney.id === newStop.journey.id) {
+          this.getJourney(newStop.journey.id);
+        }
+
+      }
+    });
+
+    API.graphql(graphqlOperation(subscriptions.onDeleteStop)).subscribe({
+      next: response => {
+        const deleted = response.value.data.onDeleteStop;
+        const journeys = this.state.journeys.map(journey => {
+          if (journey.id === deleted.journey.id) {
+            const items = journey.stops.items.filter(item => item.id !== deleted.id);
+            journey.stops.items = items;
+          }
+          return journey;
+        });
+        this.setState({
+          journeys,
+          loading: false,
+        });
+
+        if (this.state.currentJourney && this.state.currentJourney.id === deleted.journey.id) {
+          this.getJourney(deleted.journey.id);
+        }
+      }
+    });
 
   }
 
@@ -248,7 +328,24 @@ class App extends Component {
           <Switch>
             <Route 
               exact path="/" 
-              render={props => <ListJourneys {...props} journeys={journeys} loading={loading} getSchedule={this.getSchedule} deleteJourney={this.deleteJourney}/> }  
+              render={props => 
+                <ListJourneys {...props} 
+                  journeys={journeys} 
+                  loading={loading} 
+                  getSchedule={this.getSchedule} 
+                  deleteJourney={this.deleteJourney}
+                />
+              }  
+            />
+            <Route
+              path="/addjourney"
+              render={props => 
+                <AddJourney {...props} 
+                  loading={loading} 
+                  error={error} 
+                  addJourney={this.addJourney}
+                />
+              }
             />
             <Route
               path="/trips/:id"
@@ -263,6 +360,7 @@ class App extends Component {
                   getTrip={this.getTrip} 
                   getStops={this.getStops}
                   addStop={this.addStop}
+                  deleteStop={this.deleteStop}
                   trip={this.state.currentTrip} 
                   addPassenger={this.addPassenger}
                 />}

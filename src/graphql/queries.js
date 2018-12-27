@@ -4,6 +4,7 @@
 export const getJourney = `query GetJourney($id: ID!) {
   getJourney(id: $id) {
     id
+    code
     from
     to
     schedule {
@@ -35,6 +36,7 @@ export const listJourneys = `query ListJourneys(
   listJourneys(filter: $filter, limit: $limit, nextToken: $nextToken) {
     items {
       id
+      code
       from
       to
       schedule {
@@ -67,6 +69,7 @@ export const getSchedule = `query GetSchedule($id: ID!) {
     time
     journey {
       id
+      code
       from
       to
     }
@@ -85,6 +88,7 @@ export const listSchedules = `query ListSchedules(
       time
       journey {
         id
+        code
         from
         to
       }
@@ -174,6 +178,7 @@ export const getStop = `query GetStop($id: ID!) {
     id
     journey {
       id
+      code
       from
       to
     }
@@ -194,6 +199,7 @@ export const listStops = `query ListStops(
       id
       journey {
         id
+        code
         from
         to
       }

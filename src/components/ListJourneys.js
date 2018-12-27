@@ -9,6 +9,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 
 const styles = theme => ({
     root: {
@@ -37,8 +38,7 @@ class ListJourneys extends Component {
     };
 
     handleDelete = id => async event => { 
-        const data = { id };
-        this.props.deleteJourney(data);
+        this.props.deleteJourney(id);
     };
 
     render() {
@@ -46,8 +46,14 @@ class ListJourneys extends Component {
 
         const TableContent = journeys.map((journey) => 
             <TableRow key={journey.id} >
-                <TableCell><Link to={'/trips/' + journey.id}><Button>{journey.from + " to " + journey.to}</Button></Link></TableCell>
-                <TableCell><Button onClick={this.handleDelete(journey.id)}>delete</Button></TableCell>
+                <TableCell align="left">
+                    <Link to={'/trips/' + journey.id}>
+                        <Typography>
+                            {journey.from + " to " + journey.to}
+                        </Typography>
+                    </Link>
+                </TableCell>
+                <TableCell><Button color="secondary" onClick={this.handleDelete(journey.id)}>delete</Button></TableCell>
             </TableRow>
         );
 

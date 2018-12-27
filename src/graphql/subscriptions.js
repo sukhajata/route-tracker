@@ -4,6 +4,7 @@
 export const onCreateJourney = `subscription OnCreateJourney {
   onCreateJourney {
     id
+    code
     from
     to
     schedule {
@@ -30,6 +31,7 @@ export const onCreateJourney = `subscription OnCreateJourney {
 export const onUpdateJourney = `subscription OnUpdateJourney {
   onUpdateJourney {
     id
+    code
     from
     to
     schedule {
@@ -56,6 +58,7 @@ export const onUpdateJourney = `subscription OnUpdateJourney {
 export const onDeleteJourney = `subscription OnDeleteJourney {
   onDeleteJourney {
     id
+    code
     from
     to
     schedule {
@@ -86,6 +89,7 @@ export const onCreateSchedule = `subscription OnCreateSchedule {
     time
     journey {
       id
+      code
       from
       to
     }
@@ -99,6 +103,7 @@ export const onUpdateSchedule = `subscription OnUpdateSchedule {
     time
     journey {
       id
+      code
       from
       to
     }
@@ -112,6 +117,7 @@ export const onDeleteSchedule = `subscription OnDeleteSchedule {
     time
     journey {
       id
+      code
       from
       to
     }
@@ -216,6 +222,7 @@ export const onCreateStop = `subscription OnCreateStop {
     id
     journey {
       id
+      code
       from
       to
     }
@@ -231,6 +238,7 @@ export const onUpdateStop = `subscription OnUpdateStop {
     id
     journey {
       id
+      code
       from
       to
     }
@@ -246,6 +254,7 @@ export const onDeleteStop = `subscription OnDeleteStop {
     id
     journey {
       id
+      code
       from
       to
     }

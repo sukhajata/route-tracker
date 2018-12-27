@@ -11,7 +11,7 @@ import Typography from '@material-ui/core/Typography';
 
 import MapComponent from './MapComponent';
 import { TextField, Button } from '@material-ui/core';
-
+import Keys from '../config/keys';
   
 const styles = theme => ({
     root: {
@@ -44,6 +44,7 @@ const styles = theme => ({
     leftButton: {
         marginRight: 20,
     },
+  
 });
 
 class ListStops extends Component {
@@ -57,8 +58,7 @@ class ListStops extends Component {
     };
 
     handleDelete = id => async event => { 
-        const data = { id };
-        this.props.deleteJourney(data);
+        this.props.deleteStop(id);
     };
 
     componentDidMount() {
@@ -95,6 +95,7 @@ class ListStops extends Component {
     render() {
         const { classes, loading, error, journey } = this.props;
         const { stopName } = this.state;
+        const mapUrl = "https://maps.googleapis.com/maps/api/js?key=" + Keys.GOOGLE_MAPS_API_KEY + "&v=3.exp&libraries=geometry,drawing,places";
 
         if (loading) return (<h2>Loading...</h2>);
 
@@ -103,25 +104,17 @@ class ListStops extends Component {
         const TableContent = journey && journey.stops && journey.stops.items.map((stop) => 
             <TableRow key={stop.id} >
                 <TableCell>{stop.name}</TableCell>
-                <TableCell>{stop.latitude}</TableCell>
-                <TableCell>{stop.longitude}</TableCell>
-                <TableCell>{stop.address}</TableCell>
-                <TableCell onClick={this.handleDelete(stop.id)}>delete</TableCell>
+                <TableCell>
+                    <Button color="secondary" onClick={this.handleDelete(stop.id)}>
+                        X
+                    </Button>
+                </TableCell>
             </TableRow>
         );
 
         return (
             <div>
                 <Table className={classes.demo}>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Latitude</TableCell>
-                            <TableCell>Longitude</TableCell>
-                            <TableCell>Address</TableCell>
-                            <TableCell> </TableCell>
-                        </TableRow>
-                    </TableHead>
                     <TableBody>
                         {TableContent}
                     </TableBody>
@@ -130,7 +123,7 @@ class ListStops extends Component {
                 <MapComponent
                   stops={journey.stops.items}
                   handleClickAddStop={this.handleClickAddStop}
-                  googleMapURL="https://maps.googleapis.com/maps/api/js?key=AIzaSyCDCFIlyarJGtJDsvwQ60ANCyMJIi3KTPE&v=3.exp&libraries=geometry,drawing,places"
+                  googleMapURL={mapUrl}
                   loadingElement={<div style={{ height: `100%` }} />}
                   containerElement={<div style={{ height: `400px` }} />}
                   mapElement={<div style={{ height: `100%` }} />}

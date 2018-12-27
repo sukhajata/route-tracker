@@ -139,7 +139,7 @@ class Trips extends Component {
     };
 
     render() {
-        const { classes, journey, loading, trip, error, getStops, addStop  } = this.props;
+        const { classes, journey, loading, trip, error, getStops, addStop, deleteStop  } = this.props;
         const { tabValue, schedule, date, time, showPassengers, showDateTime, scheduleContent } = this.state;
 
         if (loading) return (<h2>Loading...</h2>);
@@ -228,6 +228,7 @@ class Trips extends Component {
                             journey={journey}
                             getStops={getStops}
                             addStop={addStop}
+                            deleteStop={deleteStop}
                         />
                     </TabContainer>
                 }
